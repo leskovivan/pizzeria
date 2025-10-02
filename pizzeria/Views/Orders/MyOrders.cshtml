@@ -1,0 +1,37 @@
+﻿@model PagedList<Order>
+@{
+    ViewData["Title"] = "Мои заказы";
+}
+<div class="container">
+    <h3>Мои заказы</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>№</th>
+                <th>Дата</th>
+                <th>Адрес</th>
+                <th>Состав</th>
+                <th>Итого</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var o in Model)
+            {
+                var total = o.OrderDetails.Sum(d => d.Quantity * d.Product.Price);
+                <tr>
+                    <td>@o.Id</td>
+                    <td>@o.CreatedAt</td>
+                    <td>@o.City, @o.Address</td>
+                    <td>
+                        @foreach (var d in o.OrderDetails)
+                        {
+                            <div>@d.Product.Name × @d.Quantity</div>
+                        }
+                    </td>
+                    <td>₴@total</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @await Html.PartialAsync("_Pages", Model)
+</div>

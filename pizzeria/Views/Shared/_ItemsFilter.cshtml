@@ -1,0 +1,16 @@
+﻿@model dynamic
+<div class="row" style="margin:10px 0">
+    <div class="col-md-12">
+        <div class="input-group">
+            <label class="input-group-addon">Фильтр</label>
+            <select form="pageform" name="options.FilterPropertyName" class="form-control">
+                <option value="Price">Стоимость</option>
+                <option value="Brand">Бренд</option>
+            </select>
+            <input form="pageform" type="text" name="options.FilterTerm" class="form-control" placeholder="Значение" />
+            <span class="input-group-btn">
+                <button form="pageform" class="btn btn-success" type="submit">Применить</button>
+            </span>
+        </div>
+    </div>
+</div>

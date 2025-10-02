@@ -1,0 +1,72 @@
+﻿@model PagedList<Order>
+@{
+    Layout = "~/Views/Panel/_PanelLayout.cshtml";
+    ViewData["Title"] = "Заказы";
+}
+<div class="breadcrumb-main">
+    <div class="breadcrumb-container clearfix">
+        <h1 class="page-title">Заказы</h1>
+        <ul class="breadcrumb">
+            <li><a asp-action="Index" asp-controller="Panel">Главная</a></li>
+            <li><a asp-action="Orders" asp-controller="Order">Заказы</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="p-5 mb-4 bg-light rounded-3 ovx table-responsive">
+    <table class="table">
+        <tr>
+            <th>№</th>
+            <th>Дата</th>
+            <th>Пользователь</th>
+            <th>Контакты</th>
+            <th>Доставка</th>
+            <th>Состав</th>
+            <th>Сумма</th>
+            <th></th>
+        </tr>
+        @foreach (var o in Model)
+        {
+            var total = o.OrderDetails.Sum(d => d.Quantity * d.Product.Price);
+            <tr data-rowid="@o.Id">
+                <td>@o.Id</td>
+                <td>@o.CreatedAt</td>
+                <td>@o.User?.UserName</td>
+                <td>@o.Fio <br /> @o.Phone <br /> @o.Email</td>
+                <td>@o.City, @o.Address</td>
+                <td>
+                    @foreach (var d in o.OrderDetails)
+                    {
+                        <div>@d.Product.Name × @d.Quantity</div>
+                    }
+                </td>
+                <td>₴@total</td>
+                <td><button onclick="deleteOrder('@o.Id')" class="btn btn-sm btn-danger">Удалить</button></td>
+            </tr>
+        }
+    </table>
+    <div class="text-center">
+        @await Html.PartialAsync("_Pages", Model)
+    </div>
+    @await Html.PartialAsync("_Modal", "Удалить выбранный заказ?")
+</div>
+
+@section Scripts {
+    <script>
+        async function deleteOrder(orderId) {
+            const btnYes = document.getElementById('btn-Yes');
+            const btnNo = document.getElementById('btn-No');
+            $('#confirmModal').modal('show');
+            btnYes.onclick = () => {
+                fetch(`/panel/delete-order/?orderId=${orderId}`, { method: 'DELETE' })
+                  .then(r => {
+                      if (!r.ok) throw new Error('error');
+                      document.querySelector("tr[data-rowid='" + orderId + "']").remove();
+                      $('#confirmModal').modal('hide');
+                  })
+                  .catch(console.error);
+            }
+            btnNo.onclick = () => $('#confirmModal').modal('hide');
+        }
+    </script>
+}

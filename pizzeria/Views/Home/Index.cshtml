@@ -1,0 +1,52 @@
+﻿@using pizzeria.Models
+@model PagedList<Product>
+@{
+    ViewData["Title"] = ViewData["Title"] ?? "Главная";
+}
+
+<div class="breadcrumb-main">
+    <div class="breadcrumb-container clearfix">
+        <h1 class="page-title">@ViewData["Title"]</h1>
+        <ul class="breadcrumb">
+            <li><a asp-controller="Home" asp-action="Index">Главная</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        @await Html.PartialAsync("_ItemsFilter", Model)
+    </div>
+</div>
+
+<div class="row" style="margin:10px 0">
+    @{
+        ViewBag.sorts = new string[] { "Name", "Category.Name", "Price", "Brand", "Calories", "Weight" };
+    }
+    @await Html.PartialAsync("_SortOptions", Model)
+</div>
+
+<div class="input-group themability-search" style="margin:10px 0">
+    @{
+        ViewBag.searches = new string[] { "Name", "Brand", "Description", "Category.Name" };
+    }
+    @await Html.PartialAsync("_SearchOptions", Model)
+</div>
+
+<div class="row">
+    @foreach (var p in Model)
+    {
+        @await Html.PartialAsync("_Product", p)
+    }
+</div>
+
+<div id="updateDiv"></div>
+
+<div class="text-center">
+    @await Html.PartialAsync("_Pages", Model)
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-ajax-unobtrusive@3.2.6/dist/jquery.unobtrusive-ajax.min.js"></script>
+}

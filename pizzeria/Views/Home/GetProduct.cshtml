@@ -1,0 +1,50 @@
+﻿@using pizzeria.Data.Helpers
+@model pizzeria.ViewModels.CurrentProductViewModel
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            @if (!string.IsNullOrWhiteSpace(Model.Product.Image))
+            {
+                <img src="@Model.Product.Image" alt="@Model.Product.Name" class="img-responsive" />
+            }
+        </div>
+        <div class="col-md-6">
+            <h2>@Model.Product.Name</h2>
+            <p>@Model.Product.Description</p>
+            <p>Категория: @Model.Product.Category?.Name</p>
+            <p>Бренд: @Model.Product.Brand</p>
+            <p>Вес: @Model.Product.Weight @(Model.Product.Type == pizzeria.Models.ProductType.Drink ? "мл" : "г")</p>
+            <p>Калории: @Model.Product.Calories</p>
+            <h3>₴@Model.Product.Price</h3>
+
+            <form method="post" asp-controller="ShopCart" asp-action="AddToCart" asp-route-isModal="false">
+                <input type="hidden" name="productId" value="@Model.Product.Id" />
+                <input type="hidden" name="returnUrl" value="@ViewContext.HttpContext.Request.PathAndQuery()" />
+                <div class="proquantity-detail">
+                    <label class="control-label quantity-label" for="input-quantity">Количество</label>
+                    <div class="product-btn-quantity">
+                        <button class="minus"><i class="fa fa-minus"></i></button>
+                        <input type="text" name="quantity" value="1" size="2" id="input-quantity" class="form-control">
+                        <button class="plus"><i class="fa fa-plus"></i></button>
+                    </div>
+                </div>
+                <div class="pro-cart">
+                    <button type="submit" class="btn btn-primary btn-lg btn-block">
+                        <span>Добавить в Корзину</span>
+                        <i class="fa fa-shopping-cart"></i>
+                    </button>
+                </div>
+            </form>
+
+            @if (!string.IsNullOrEmpty(Model.ReturnUrl))
+            {
+                <div style="margin-top:10px">
+                    <a href="@Model.ReturnUrl" class="btn btn-default">Назад</a>
+                </div>
+            }
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("RelatedProducts", new { productId = Model.Product.Id })
+</div>

@@ -1,0 +1,101 @@
+﻿@using pizzeria.Data.Helpers
+@model IEnumerable<ShopCartItem>
+@{
+    ViewData["Title"] = "Корзина";
+    decimal totalPrice = 0;
+}
+
+<div class="blog-section">
+    <div id="checkout-cart" class="container">
+        <div class="row">
+            <div id="content" class="col-sm-12">
+                <div class="breadcrumb-main">
+                    <div class="breadcrumb-container clearfix">
+                        <h1 class="page-title">Корзина</h1>
+                        <ul class="breadcrumb">
+                            <li><a asp-controller="Home" asp-action="Index">Главная</a></li>
+                            <li><a asp-controller="ShopCart" asp-action="Index">Корзина</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="table-responsive cart-info">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <td class="text-center">Фото</td>
+                                <td class="text-left">Продукт</td>
+                                <td class="text-left">Бренд</td>
+                                <td class="text-left">Количество</td>
+                                <td class="text-right">Цена</td>
+                                <td class="text-right">Итого</td>
+                                <td></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                var subtotal = item.Price * item.Count;
+                                totalPrice += subtotal;
+                                <tr>
+                                    <td class="text-center">
+                                        @if (item.Product.Image != null)
+                                        {
+                                                <a asp-controller="Home" asp-action="GetProduct" asp-route-productId="@item.Product.Id"
+                                                   asp-route-returnUrl="@ViewContext.HttpContext.Request.PathAndQuery()">
+                                                    <img class="img-thumbnail" src="@item.Product.Image" alt="@item.Product.Name" />
+                                                </a>
+                                        }
+                                    </td>
+                                    <td class="text-left">
+                                        <a asp-controller="Home" asp-action="GetProduct" asp-route-productId="@item.Product.Id"
+                                           asp-route-returnUrl="@ViewContext.HttpContext.Request.PathAndQuery()">
+                                            @item.Product.Name
+                                        </a>
+                                    </td>
+                                    <td class="text-left">@item.Product.Brand</td>
+                                    <td class="text-left">
+                                        <div class="input-group btn-block">
+                                            <div class="product-btn-quantity">
+                                                <form method="post">
+                                                    <div class="product-btn-quantity">
+                                                        <button asp-controller="ShopCart" asp-action="DecrementQuantity" asp-route-shopCartItemId="@item.Id" type="submit"><i class="fa fa-minus"></i></button>
+                                                        <input type="text" value="@item.Count" size="2" class="form-control" readonly>
+                                                        <button asp-controller="ShopCart" asp-action="IncrementQuantity" asp-route-shopCartItemId="@item.Id" type="submit"><i class="fa fa-plus"></i></button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-right">₴@item.Price</td>
+                                    <td class="text-right">₴@subtotal</td>
+                                    <td class="text-center">
+                                        <form method="post" asp-controller="ShopCart" asp-action="RemoveFromCart" asp-route-shopCartItemId="@item.Id">
+                                            <button class="btn btn-danger" type="submit"><i class="fa fa-times-circle"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="5" class="text-right"><strong>Итого:</strong></td>
+                                <td class="text-right"><strong>₴@totalPrice</strong></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="buttons clearfix">
+                    <div class="pull-left"><a asp-controller="Home" asp-action="Index" class="btn btn-default">Продолжить покупки</a></div>
+                    <div class="pull-right">
+                        <form method="post" asp-controller="Order" asp-action="Index">
+                            <button type="submit" class="btn btn-primary">Оформить заказ</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
