@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using pizzeria;
+using pizzeria.Models;
 
 public class OrderRepository : IOrder
 {

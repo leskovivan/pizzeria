@@ -1,4 +1,5 @@
-﻿using System;
+﻿using pizzeria.Models;
+using System;
 using System.Collections.Generic;
 
 public class Order

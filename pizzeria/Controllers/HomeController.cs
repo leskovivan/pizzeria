@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using pizzeria.Interfaces;
+using pizzeria.Models;
 using pizzeria.ViewModels;
 
 namespace pizzeria.Controllers
