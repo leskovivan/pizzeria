@@ -12,6 +12,7 @@ namespace pizzeria
         public DbSet<ShopCartItem> ShopCartItems { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetails> OrderDetails { get; set; }
+        public DbSet<Category> Categories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

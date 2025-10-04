@@ -25,6 +25,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 
 builder.Services.AddTransient<IProduct, ProductRepository>();
 builder.Services.AddTransient<IOrder, OrderRepository>();
+builder.Services.AddTransient<ICategory, CategoryRepository>();
 builder.Services.AddScoped(e => CartRepository.GetCart(e));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddMemoryCache();
@@ -40,11 +41,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseSession();
-
 app.UseAuthentication();
 app.UseAuthorization();
 

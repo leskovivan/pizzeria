@@ -1,5 +1,5 @@
-﻿using pizzeria.Models;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using pizzeria.Models;
 
 public interface IOrder
 {
