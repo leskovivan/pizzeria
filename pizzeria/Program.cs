@@ -7,21 +7,24 @@ using pizzeria.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDbContext<ApplicationContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// читаем строку из конфигов и проверяем
+var csFromConfig = builder.Configuration.GetConnectionString("DefaultConnection");
+var csFromEnv = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+var cs = !string.IsNullOrWhiteSpace(csFromEnv) ? csFromEnv : csFromConfig;
 
-builder.Services.AddIdentity<User, IdentityRole>(options =>
-{
-    options.Password.RequireDigit = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredLength = 6;
-})
-.AddEntityFrameworkStores<ApplicationContext>()
-.AddDefaultTokenProviders();
+if (string.IsNullOrWhiteSpace(cs))
+    throw new InvalidOperationException("Connection string 'DefaultConnection' is missing. Check appsettings.json or environment variable ConnectionStrings__DefaultConnection.");
+
+builder.Services.AddDbContext<ApplicationContext>(o => o.UseSqlServer(cs));
+
+builder.Services.AddIdentity<User, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddTransient<IProduct, ProductRepository>();
 builder.Services.AddTransient<IOrder, OrderRepository>();
@@ -33,12 +36,6 @@ builder.Services.AddSession();
 
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
@@ -46,19 +43,22 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-    var userManager = services.GetRequiredService<UserManager<User>>();
-    var rolesManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-    await DbInit.InitializeAsync(userManager, rolesManager);
-    var context = services.GetRequiredService<ApplicationContext>();
-    await DbInit.InitializeContentAsync(context);
-    await DbInit.CreateSeedDataAsync(context, new int[] { 1, 2, 3 });
+    var sp = scope.ServiceProvider;
+    var logger = sp.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("DefaultConnection (env override: {hasEnv}): {cs}", !string.IsNullOrWhiteSpace(csFromEnv), cs);
+
+    var db = sp.GetRequiredService<ApplicationContext>();
+    await db.Database.MigrateAsync();
+
+    var userMgr = sp.GetRequiredService<UserManager<User>>();
+    var roleMgr = sp.GetRequiredService<RoleManager<IdentityRole>>();
+    await DbInit.InitializeAsync(userMgr, roleMgr);
+    await DbInit.InitializeContentAsync(db);
+    await DbInit.CreateSeedDataAsync(db, new[] { 1, 2, 3 });
 }
 
 app.Run();
