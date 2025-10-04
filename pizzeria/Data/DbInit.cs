@@ -32,20 +32,29 @@ namespace pizzeria
 
         public static async Task InitializeContentAsync(ApplicationContext db)
         {
-            var catMap = await EnsureCategoriesAsync(db, new[] { "Пицца", "Салаты", "Напитки" });
+            var needCats = new[] { "Пицца", "Салаты", "Напитки" };
+            foreach (var name in needCats)
+                if (!await db.Categories.AnyAsync(c => c.Name == name))
+                    await db.Categories.AddAsync(new Category { Name = name });
+            await db.SaveChangesAsync();
+
+            var catPizzaId = (await db.Categories.FirstAsync(c => c.Name == "Пицца")).Id;
+            var catSaladId = (await db.Categories.FirstAsync(c => c.Name == "Салаты")).Id;
+            var catDrinkId = (await db.Categories.FirstAsync(c => c.Name == "Напитки")).Id;
 
             if (!await db.Products.AnyAsync())
             {
                 var list = new List<Product>
-                {
-                    new Product { Name="Пицца Маргарита", Description="Классическая пицца", Weight=500, Calories=800, Price=199, Brand="PizzaStar", Type=ProductType.Dish, CategoryId=catMap["Пицца"], Image="/productFiles/pizza.png", DateOfPublication=DateTime.Now },
-                    new Product { Name="Салат Цезарь", Description="Салат с курицей",  Weight=300, Calories=450, Price=149, Brand="PizzaStar", Type=ProductType.Dish, CategoryId=catMap["Салаты"], Image="/productFiles/salad.png", DateOfPublication=DateTime.Now },
-                    new Product { Name="Лимонад",       Description="Освежающий напиток", Weight=500, Calories=120, Price=69,  Brand="PizzaStar", Type=ProductType.Drink, CategoryId=catMap["Напитки"], Image="/productFiles/drink.png", DateOfPublication=DateTime.Now }
-                };
+        {
+            new Product { Name="Пицца Маргарита", Description="Классическая пицца", Weight=500, Calories=800, Price=199, Brand="PizzaStar", Type=ProductType.Dish, CategoryId=catPizzaId, Image="/productFiles/pizza.png", DateOfPublication=DateTime.Now },
+            new Product { Name="Салат Цезарь", Description="Салат с курицей", Weight=300, Calories=450, Price=149, Brand="PizzaStar", Type=ProductType.Dish, CategoryId=catSaladId, Image="/productFiles/salad.png", DateOfPublication=DateTime.Now },
+            new Product { Name="Лимонад", Description="Освежающий напиток", Weight=500, Calories=120, Price=69, Brand="PizzaStar", Type=ProductType.Drink, CategoryId=catDrinkId, Image="/productFiles/drink.png", DateOfPublication=DateTime.Now }
+        };
                 await db.Products.AddRangeAsync(list);
                 await db.SaveChangesAsync();
             }
         }
+
 
         public static async Task CreateSeedDataAsync(ApplicationContext db, int[] categories)
         {
