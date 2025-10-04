@@ -1,0 +1,30 @@
+﻿@model dynamic
+@{
+    var searches = ViewBag.searches as string[] ?? new string[0];
+}
+<div class="input-group">
+    <select form="pageform" name="options.SearchPropertyName" class="form-control">
+        @foreach (var s in searches)
+        {
+            var label = s switch
+            {
+                "Email" => "Емейл",
+                "PhoneNumber" => "Телефон",
+                "Name" => "Название",
+                "Description" => "Описание",
+                "Brand" => "Бренд",
+                "Category.Name" => "Категория",
+                "Address" => "Адрес",
+                "City" => "Город",
+                "Phone" => "Телефон (Незарегистрированный)",
+                "User.PhoneNumber" => "Телефон",
+                _ => s
+            };
+            <option value="@s">@label</option>
+        }
+    </select>
+    <input form="pageform" type="text" name="options.SearchTerm" class="form-control" placeholder="Поиск..." />
+    <span class="input-group-btn">
+        <button form="pageform" class="btn btn-default" type="submit">Найти</button>
+    </span>
+</div>

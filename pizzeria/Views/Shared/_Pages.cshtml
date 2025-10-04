@@ -1,0 +1,35 @@
+﻿@model dynamic
+@{
+    var opt = Model?.Options;
+    int page = opt?.PageNumber ?? Model?.PageIndex ?? 1;
+    int total = Model?.TotalPages ?? 1;
+}
+<form id="pageform" method="get">
+    <input type="hidden" name="Options.OrderPropertyName" value="@(opt?.OrderPropertyName)" />
+    <input type="hidden" name="Options.DescendingOrder" value="@(opt?.DescendingOrder ?? false)" />
+    <input type="hidden" name="Options.SearchPropertyName" value="@(opt?.SearchPropertyName)" />
+    <input type="hidden" name="Options.SearchTerm" value="@(opt?.SearchTerm)" />
+    <input type="hidden" name="Options.FilterPropertyName" value="@(opt?.FilterPropertyName)" />
+    <input type="hidden" name="Options.FilterTerm" value="@(opt?.FilterTerm)" />
+    <input type="hidden" name="Options.PageSize" value="@(opt?.PageSize ?? 12)" />
+    <input type="hidden" name="categoryId" value="@ViewBag.CategoryId" />
+</form>
+
+<nav aria-label="Pagination">
+    <ul class="pagination">
+        <li class="page-item @(page <= 1 ? "disabled" : "")">
+            <button form="pageform" type="submit" class="page-link" name="Options.PageNumber" value="@(page - 1)">«</button>
+        </li>
+
+        @for (var i = 1; i <= total; i++)
+        {
+            <li class="page-item @(i == page ? "active" : "")">
+                <button form="pageform" type="submit" class="page-link" name="Options.PageNumber" value="@i">@i</button>
+            </li>
+        }
+
+        <li class="page-item @(page >= total ? "disabled" : "")">
+            <button form="pageform" type="submit" class="page-link" name="Options.PageNumber" value="@(page + 1)">»</button>
+        </li>
+    </ul>
+</nav>
